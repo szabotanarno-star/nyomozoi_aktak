@@ -142,7 +142,7 @@
   .meander{
     height:10px;
     margin:18px 0 28px;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='12'><path d='M0 11 V5 H8 V9 H16 V1 H24 V9 H32 V5 H40 V11' stroke='%23E8C77A' stroke-width='2' fill='none' opacity='0.8'/></svg>");
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='12'><path d='M0 11 V5 H8 V9 H16 V1 H24 V9 H32 V5 H40 V11' stroke='%23E8C77A' stroke-width='1' fill='none'/></svg>");
     background-repeat:repeat-x;
     background-position:center;
   }
@@ -217,6 +217,22 @@
     transform:rotate(1deg);
   }
   .add-case-btn:hover{transform:rotate(0deg) translateY(-1px); background:var(--blue-dark); border-color:var(--blue-light);}
+
+  /* ---------- FEATURED IMAGE ---------- */
+  .featured-image {
+    margin: 24px 0 34px;
+    border: 2px solid var(--brass);
+    box-shadow: 6px 8px 12px var(--shadow);
+    overflow: hidden;
+    max-height: 280px;
+  }
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: sepia(.3) saturate(1.1) contrast(1.05) brightness(.98);
+  }
 
   /* ---------- FILTER ---------- */
   .filter-bar{
@@ -510,6 +526,10 @@
 
   <div class="meander"></div>
 
+  <section class="featured-image">
+    <img src="lovagok_kodexiniciale_2.png" alt="Középkori lovag kodex iniciálé">
+  </section>
+
   <nav class="filter-bar" id="filterBar"></nav>
 
   <main class="case-grid" id="caseGrid"></main>
@@ -537,7 +557,7 @@ const STARTER_GAMES = [
     eraGroup:"Középkor",
     title:"A fejedelem pecsétje",
     teaser:"Egy vitatott hatalomátvétel nyomait kutatod a honfoglalás és államalapítás korából.",
-    description:"Géza fejedelem udvarában ellentmondó krónikás beszámolók kerültek elő. A te dolgod, hogy forrásösszevetéssel kiderítsd, mi történhetett valójában — és mi csak utólagos legendaképzés.",
+    description:"Géza fejedelem udvarában ellentmondó krónikás beszámolók kerültek elő. A te dolgod, hogy forrásösszevetéssel kiderítsd, mi történhetett valójában — és mi csak legenda.",
     clues:["3 krónikarészlet","1 genealógiai tábla","kortárs térkép"],
     difficulty:1, duration:"25–35 perc", image:"", link:"#"
   },
@@ -547,7 +567,7 @@ const STARTER_GAMES = [
     eraGroup:"Középkor",
     title:"Az öt báró vallomása",
     teaser:"Logikai rács segít kideríteni, ki mondott igazat az Anjou-kori udvari perben.",
-    description:"Öt főúr — köztük Nekcsei Demeter és Druget Vilmos — egymásnak ellentmondó vallomást tett Károly Róbert udvarában. Kizárásos alapon, táblázatos nyomozással kell kiderítened a tényleges eseménysort.",
+    description:"Öt főúr — köztük Nekcsei Demeter és Druget Vilmos — egymásnak ellentmondó vallomást tett Károly Róbert udvarában. Kizárásos alapon, táblázatos nyomozással keríts fel a valóságra.",
     clues:["5 vallomás","birtokjegyzék","utazási napló"],
     difficulty:2, duration:"30–40 perc", image:"", link:"#"
   },
@@ -557,7 +577,7 @@ const STARTER_GAMES = [
     eraGroup:"Középkor",
     title:"Az elveszett pecsét",
     teaser:"Egy eltűnt viaszpecsét nyomán derítitek fel egy középkori város titkát.",
-    description:"A városi tanács pecsétje eltűnt egy fontos oklevélről. Térképek, kézműves nyomok és szemtanúk vallomásai vezetnek el a tetteshez — de csak ha helyesen olvasod össze a bizonyítékokat.",
+    description:"A városi tanács pecsétje eltűnt egy fontos oklevélről. Térképek, kézműves nyomok és szemtanúk vallomásai vezetnek el a tetteshez — de csak ha helyesen olvasod össze az adatokat.",
     clues:["oklevél-töredék","céhlajstrom","térkép a városról"],
     difficulty:2, duration:"35–45 perc", image:"", link:"#"
   },
@@ -567,7 +587,7 @@ const STARTER_GAMES = [
     eraGroup:"Újkor",
     title:"A rendi országgyűlés titkai",
     teaser:"Kövesd a reformkor vitáit, és fejtsd meg, kinek az érdeke húzódott a felszín alatt.",
-    description:"Egy rendi országgyűlési vitában elhangzott javaslat szerzősége bizonytalan. Korabeli röplapok, naplórészletek és beszédtöredékek segítségével azonosítsd, mely reformer állhatott a háttérben.",
+    description:"Egy rendi országgyűlési vitában elhangzott javaslat szerzősége bizonytalan. Korabeli röplapok, naplórészletek és beszédtöredékek segítségével azonosítsd, mely reformátor dolgozott a háttérben.",
     clues:["röplapok","naplórészlet","szavazási jegyzőkönyv"],
     difficulty:2, duration:"30 perc", image:"", link:"#"
   },
@@ -577,7 +597,7 @@ const STARTER_GAMES = [
     eraGroup:"XX. század",
     title:"A béketárgyalás dossziéja",
     teaser:"Kilenc delegáció, egymásnak ellentmondó térképek és érdekek — mi húzódott a döntések mögött?",
-    description:"A párizsi békekonferencia idején egy kulcsfontosságú tárgyalási jegyzőkönyv hiányos maradt. Delegációs anyagok és térképek összevetésével rekonstruáld, mely érvek nyertek — és melyek maradtak figyelmen kívül.",
+    description:"A párizsi békekonferencia idején egy kulcsfontosságú tárgyalási jegyzőkönyv hiányos maradt. Delegációs anyagok és térképek összevetésével rekonstruáld, mely érdekek küzdöttek egymással.",
     clues:["9 delegációs dosszié","vitatott térképek","tárgyalási napló"],
     difficulty:3, duration:"45–60 perc", image:"", link:"#"
   },
@@ -587,7 +607,7 @@ const STARTER_GAMES = [
     eraGroup:"XX. század",
     title:"A Vermeer-hamisítvány",
     teaser:"Egy náci műkincsgyűjteménybe került festmény eredetiségét kell tisztáznod.",
-    description:"Göring gyűjteményében egy állítólagos Vermeer-festmény bukkant fel. Szakértői jelentések, levelezés és technikai vizsgálatok alapján neked kell eldöntened: eredeti műalkotásról vagy zseniális hamisítványról van szó.",
+    description:"Göring gyűjteményében egy állítólagos Vermeer-festmény bukkant fel. Szakértői jelentések, levelezés és technikai vizsgálatok alapján neked kell eldöntened: eredeti vagy meghamisított mű-e?",
     clues:["szakértői jelentés","levelezés","anyagvizsgálati adatok"],
     difficulty:3, duration:"45 perc", image:"", link:"#"
   }
@@ -597,7 +617,7 @@ const STARTER_GAMES = [
 const SCENE_ICONS = {
   "Középkor":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="32" cy="26" r="14"/><path d="M32 40 L26 54 L32 50 L38 54 Z"/><path d="M22 22 Q32 32 42 22"/></svg>',
   "Újkor":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 50 H52 M18 50 V22 L32 12 L46 22 V50"/><path d="M26 50 V32 M38 50 V32"/></svg>',
-  "XX. század":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="12" y="10" width="40" height="32" rx="1"/><circle cx="24" cy="22" r="4"/><path d="M12 36 L24 26 L34 34 L52 18 V42 H12 Z"/></svg>'
+  "XX. század":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="12" y="10" width="40" height="32" rx="1"/><circle cx="24" cy="22" r="4"/><path d="M12 36 L22 36 M42 36 L52 36"/></svg>'
 };
 const DEFAULT_SCENE = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="10" y="14" width="44" height="36" rx="2"/><path d="M10 26 H54"/></svg>';
 const PIN_PALETTE = ["#3A6B8C","#E8C77A","#5B9BC7","#B58A6F","#244A5E","#8C3A22"];
