@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyomozói Akták – Történelmi rejtélyek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     POMPEJI FRESKÓ — színtéma
+     ============================================================ */
+  :root{
+
+    /* ---------- HÁTTÉR — terrakotta gradiens ----------
+       Ugyanez a három szín adja a kártyák/dobozok alapszínét is:
+       --box a legsötétebb tónus, --box-raised egy árnyalattal
+       világosabb, hogy a dobozok kiemelkedjenek a háttérből. */
+    --cork:        #B5502F; /* világosabb terrakotta — gradiens teteje */
+    --cork-mid:    #8C3A22; /* középtónus — gradiens 60%-ánál */
+    --cork-dark:   #7A3018; /* legsötétebb terrakotta — gradiens alja */
+    --box:         #7A3018; /* kártyák / dobozok alap háttérszíne */
+    --box-raised:  #8C3A22; /* enyhén kiemelt doboz (pl. kártya, modal) */
+
+    /* ---------- ARANY — szegélyek, keretek, címek ---------- */
+    --brass:       #E8C77A; /* fő arany — szegély, kártyakeret, alcím, forráskártya-cím */
+    --brass-light: #F0DEB8; /* világosabb arany — főcím */
+    --cream:       #F5E2C0; /* legvilágosabb — testszöveg (intro doboz, forrásidézetek) */
+    --brass-pale:  var(--cream); /* alias: kártya-/modalcímek szövegszíne */
+    --ink-soft:    rgba(240,222,184,0.68); /* halványított arany/krém — másodlagos szöveg */
+
+    /* ---------- MOZAIKKÉK — pozitív / interaktív jelzés ---------- */
+    --blue-dark:   #244A5E; /* legsötétebb kék — helyes válasz visszajelző doboz háttere */
+    --blue:        #3A6B8C; /* sötétebb kék — bal szegélycsík, helyes válasz gomb háttere */
+    --blue-light:  #5B9BC7; /* világosabb kék — forráscím, hover-állapot */
+    --blue-pale:   #C9E2F0; /* nagyon világos kék — helyes válasz szövegszíne */
+
+    /* ---------- HIBÁS VÁLASZ — semleges barnás-vörös ---------- */
+    --danger-border: #B58A6F; /* szaggatott keret és szöveg hibás gombnál */
+    --danger-bg:     #6B2814; /* hibás visszajelző doboz háttere */
+    --danger-text:   #E8B0A0; /* hibás visszajelző doboz szövege */
+
+    /* ---------- VÉSETT CÍM-EFFEKT (text-shadow) ---------- */
+    --engrave-dark:  #5A2410;                /* sötét árnyék, bal-fent */
+    --engrave-light: rgba(248,232,200,0.67); /* világos árnyék, jobb-lent (~67% átlátszóság) */
+    --ink:           var(--engrave-dark);    /* sötét "tinta" — pl. elsődleges gomb háttere */
+
+    /* ---------- ÁRNYÉK ---------- */
+    --shadow: rgba(58,20,8,0.45);
+  }
+
+  /* Kőbe vésett cím-hatás */
+  .engraved{
+    text-shadow: -1px -1px 0 var(--engrave-dark), 1px 1px 0 var(--engrave-light);
+  }
+
+  /* Teljes oldal háttér a terrakotta gradienssel (a Nyomozói Akták saját body-szabálya felülírja a mintázattal együtt) */
+  .pompeji-bg{
+    background-color:var(--cork);
+    background-image:linear-gradient(165deg, var(--cork) 0%, var(--cork-mid) 60%, var(--cork-dark) 100%);
+    background-attachment:fixed;
+  }
+
+  /* "Helyes válasz" / "Hibás válasz" jelződoboz mintázatok — más aloldalakon (pl. kvízeknél) újrahasznosítható segéd-osztályok */
+  .feedback-correct{
+    background:var(--blue-dark);
+    color:var(--blue-pale);
+    border:1.5px solid var(--blue-light);
+  }
+  .feedback-wrong{
+    background:var(--danger-bg);
+    color:var(--danger-text);
+    border:1.5px dashed var(--danger-border);
+  }
+  /* ============================================================
+     NYOMOZÓI AKTÁK — oldal-specifikus stílusok
+     ============================================================ */
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Lora', serif;
+    color:var(--cream);
+    min-height:100vh;
+    background-color:var(--cork);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,0.05) 0, transparent 3px),
+      radial-gradient(circle at 65% 10%, rgba(0,0,0,0.12) 0, transparent 3px),
+      radial-gradient(circle at 35% 65%, rgba(0,0,0,0.10) 0, transparent 2.5px),
+      radial-gradient(circle at 80% 55%, rgba(255,255,255,0.05) 0, transparent 2.5px),
+      radial-gradient(circle at 50% 85%, rgba(0,0,0,0.10) 0, transparent 3px),
+      radial-gradient(circle at 90% 90%, rgba(0,0,0,0.08) 0, transparent 2px),
+      radial-gradient(circle at 10% 80%, rgba(0,0,0,0.08) 0, transparent 2px),
+      linear-gradient(165deg, var(--cork) 0%, var(--cork-mid) 60%, var(--cork-dark) 100%);
+    background-attachment:fixed;
+    background-size: 140px 140px, 160px 160px, 120px 120px, 150px 150px, 130px 130px, 110px 110px, 100px 100px, 100% 100%;
+  }
+
+  .wrap{max-width:1220px; margin:0 auto; padding:0 24px 90px; position:relative; z-index:1;}
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    padding:40px 0 26px;
+    margin-bottom:10px;
+    display:flex; flex-wrap:wrap; gap:22px;
+    justify-content:space-between;
+    align-items:flex-end;
+  }
+  .masthead-left{
+    background:var(--box);
+    border:1.5px solid var(--brass);
+    box-shadow:5px 5px 0 var(--shadow);
+    padding:20px 26px;
+    transform:rotate(-1deg);
+    max-width:520px;
+  }
+  .masthead h1{
+    font-family:'Special Elite', cursive;
+    font-weight:400;
+    font-size:clamp(26px, 4vw, 42px);
+    letter-spacing:0.5px;
+    margin:0 0 6px;
+    color:var(--brass-light);
+    text-shadow:-1px -1px 0 var(--engrave-dark), 1px 1px 0 var(--engrave-light);
+  }
+  .masthead h1 span{color:var(--blue-light);}
+  .masthead .subtitle{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--brass);
+    font-weight:600;
+    margin-bottom:8px;
+    display:block;
+  }
+  .meander{
+    height:10px;
+    margin:18px 0 28px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='12'><path d='M0 11 V5 H8 V9 H16 V1 H24 V9 H32 V5 H40 V11' stroke='%23E8C77A' stroke-width='2' fill='none' opacity='0.8'/></svg>");
+    background-repeat:repeat-x;
+    background-position:center;
+  }
+
+  .masthead-right{display:flex; flex-direction:column; gap:12px; align-items:flex-end;}
+
+  .rank-card{
+    background:var(--box);
+    border:1.5px solid var(--brass);
+    box-shadow:5px 5px 0 var(--shadow);
+    padding:14px 20px;
+    min-width:260px;
+    position:relative;
+    transform:rotate(1deg);
+  }
+  .rank-card::before{
+    content:"NYOMOZÓI TÖRZSKÖNYV";
+    position:absolute; top:-10px; left:16px;
+    background:var(--box);
+    padding:0 8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    color:var(--brass);
+  }
+  .rank-row{display:flex; align-items:center; justify-content:space-between; gap:14px;}
+  .rank-name{font-family:'Special Elite', cursive; font-size:16.5px; color:var(--brass-light);}
+  .rank-count{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft);}
+  .rank-bar{height:8px; background:rgba(0,0,0,0.28); border:1px solid var(--brass); margin-top:10px; overflow:hidden;}
+  .rank-bar-fill{height:100%; background:linear-gradient(90deg, var(--brass), var(--brass-light)); transition:width .5s ease;}
+  .seal-row{display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
+  .seal{
+    width:24px; height:24px; border-radius:50%;
+    border:1.5px solid var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px;
+    background:rgba(0,0,0,0.22);
+    color:var(--ink-soft);
+    opacity:.55;
+  }
+  .seal.earned{
+    background:radial-gradient(circle at 35% 30%, var(--brass-light), var(--brass));
+    color:var(--box);
+    opacity:1;
+    box-shadow:0 0 0 2px var(--box), 0 0 0 3px var(--brass);
+  }
+
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:0.5px; text-transform:uppercase;
+    padding:10px 16px;
+    border:1.5px solid var(--brass);
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:all .15s ease;
+    background:transparent;
+    color:var(--cream);
+  }
+  .btn-primary{background:var(--ink); color:var(--cream); border-color:var(--brass);}
+  .btn-primary:hover{background:var(--blue); border-color:var(--blue-light);}
+  .btn-secondary{color:var(--cream);}
+  .btn-secondary:hover{background:var(--blue-dark); border-color:var(--blue-light); color:var(--blue-pale);}
+  .btn-secondary.done{background:var(--blue-dark); border-color:var(--blue-light); color:var(--blue-pale);}
+  .btn-ghost{background:var(--box);}
+  .btn-ghost:hover{background:var(--brass); border-color:var(--brass-light); color:var(--box);}
+  .btn[disabled]{opacity:.55; cursor:default;}
+
+  .add-case-btn{
+    background:var(--box);
+    box-shadow:5px 5px 0 var(--shadow);
+    transform:rotate(1deg);
+  }
+  .add-case-btn:hover{transform:rotate(0deg) translateY(-1px); background:var(--blue-dark); border-color:var(--blue-light);}
+
+  /* ---------- FILTER ---------- */
+  .filter-bar{
+    display:flex; flex-wrap:wrap; gap:8px;
+    margin-bottom:34px;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.5px;
+    padding:7px 14px;
+    border:1.5px solid var(--brass);
+    background:rgba(0,0,0,0.18);
+    color:var(--cream);
+    cursor:pointer;
+    text-transform:uppercase;
+    transition:all .15s ease;
+  }
+  .chip:hover{background:var(--box-raised);}
+  .chip.active{background:var(--blue-dark); color:var(--blue-pale); border-color:var(--blue-light);}
+
+  /* ---------- GRID / PINNED PHOTOS ---------- */
+  .case-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:40px 30px;
+  }
+
+  .case-card{
+    background:var(--box-raised);
+    border:1.5px solid var(--brass);
+    box-shadow:4px 6px 10px var(--shadow);
+    cursor:pointer;
+    position:relative;
+    padding:10px 10px 0;
+    transition:transform .2s ease, box-shadow .2s ease;
+    display:flex; flex-direction:column;
+  }
+  .case-card:hover, .case-card:focus-visible{
+    transform:rotate(0deg) scale(1.03) translateY(-2px);
+    box-shadow:6px 10px 16px var(--shadow);
+    border-color:var(--brass-light);
+    z-index:5;
+    outline:none;
+  }
+  .case-card:focus-visible{outline:3px solid var(--blue-light); outline-offset:3px;}
+
+  .pin{
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff6, transparent 55%), var(--pin-color, var(--blue));
+    box-shadow:0 3px 4px rgba(0,0,0,0.5), inset 0 -2px 3px rgba(0,0,0,0.3);
+    z-index:6;
+  }
+
+  .case-photo{
+    position:relative;
+    height:130px;
+    overflow:hidden;
+    background:#5c3a22;
+  }
+  .case-photo img, .case-photo .fallback-scene{
+    width:100%; height:100%; object-fit:cover;
+    filter:sepia(.4) saturate(1.15) contrast(1.05) brightness(.95);
+  }
+  .case-photo .fallback-scene{
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, #a9672f, #7a3018);
+  }
+  .case-photo .fallback-scene svg{width:56px; height:56px; opacity:.9; color:#F0DEB8;}
+  .case-photo::after{
+    content:"";
+    position:absolute; inset:0;
+    box-shadow:inset 0 0 22px rgba(0,0,0,0.4);
+    pointer-events:none;
+  }
+  .stamp{
+    position:absolute; bottom:6px; right:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px; letter-spacing:0.5px;
+    color:rgba(232,199,122,0.9);
+    border:1.5px solid rgba(232,199,122,0.9);
+    padding:2px 6px;
+    transform:rotate(-8deg);
+    background:rgba(58,20,8,0.55);
+    pointer-events:none;
+  }
+  .done-ribbon{
+    position:absolute; top:6px; right:-4px;
+    background:var(--blue-dark);
+    color:var(--blue-pale);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px; letter-spacing:0.5px;
+    padding:3px 10px 3px 8px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.4);
+    border:1px solid var(--blue-light);
+  }
+
+  .icon-btn{
+    position:absolute; top:6px; z-index:7;
+    width:22px; height:22px; border-radius:50%;
+    background:rgba(58,20,8,0.75);
+    border:1px solid var(--brass);
+    color:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; cursor:pointer;
+    opacity:0; transition:opacity .15s ease;
+    line-height:1;
+  }
+  .case-card:hover .icon-btn{opacity:1;}
+  .icon-btn.edit{left:6px;}
+  .icon-btn.del{left:32px;}
+  .icon-btn:hover{background:var(--brass-light); color:var(--box);}
+  .icon-btn.del:hover{background:var(--danger-bg); border-color:var(--danger-border); color:var(--danger-text);}
+
+  .case-caption{padding:12px 6px 16px 12px; border-left:3px solid var(--blue); margin-left:4px;}
+  .case-era{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--brass);
+  }
+  .case-title{
+    font-family:'Special Elite', cursive;
+    font-size:17.5px;
+    line-height:1.25;
+    color:var(--brass-pale);
+    margin:3px 0 6px;
+    text-shadow:-1px -1px 0 var(--engrave-dark), 1px 1px 0 var(--engrave-light);
+  }
+  .case-teaser{
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .case-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    border-top:1px dashed rgba(232,199,122,0.45);
+    margin-top:10px;
+    padding-top:8px;
+  }
+  .difficulty{display:flex; gap:2px;}
+  .difficulty .dot{width:6.5px; height:6.5px; border-radius:50%; background:rgba(0,0,0,0.25); border:1px solid var(--ink-soft);}
+  .difficulty .dot.on{background:var(--brass); border-color:var(--brass);}
+
+  .empty-state{
+    grid-column:1/-1;
+    text-align:center;
+    padding:60px 20px;
+    color:var(--brass-pale);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+  }
+
+  /* ---------- OVERLAY / MODAL ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,8,3,0.68);
+    display:none; align-items:center; justify-content:center;
+    padding:20px; z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--box-raised);
+    border:2px solid var(--brass);
+    box-shadow:9px 9px 0 var(--shadow);
+    max-width:580px; width:100%;
+    max-height:88vh; overflow-y:auto;
+    position:relative;
+    color:var(--cream);
+  }
+  .modal-head{
+    padding:22px 26px 14px;
+    border-bottom:2px solid var(--brass);
+    position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px;
+    background:none; border:1.5px solid var(--brass); width:30px; height:30px;
+    font-size:16px; cursor:pointer; color:var(--cream);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .modal-close:hover{background:var(--brass); color:var(--box);}
+  .modal-era{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:1.5px; color:var(--brass); text-transform:uppercase;}
+  .modal-title{font-family:'Special Elite', cursive; font-size:24px; margin:6px 0 0; padding-right:30px; color:var(--brass-pale); text-shadow:-1px -1px 0 var(--engrave-dark), 1px 1px 0 var(--engrave-light);}
+  .modal-photo{height:180px; overflow:hidden; border-bottom:2px solid var(--brass);}
+  .modal-photo img, .modal-photo .fallback-scene{width:100%; height:100%; object-fit:cover; filter:sepia(.4) saturate(1.15) contrast(1.05) brightness(.95);}
+  .modal-photo .fallback-scene{display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg, #a9672f, #7a3018);}
+  .modal-photo .fallback-scene svg{width:70px; height:70px; opacity:.9; color:#F0DEB8;}
+
+  .modal-body{padding:20px 26px 26px;}
+  .modal-desc{font-size:14.5px; line-height:1.65; color:var(--cream); margin-bottom:18px;}
+
+  .clue-list{list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:6px;}
+  .clue-list li{font-size:13px; color:var(--ink-soft); padding-left:20px; position:relative;}
+  .clue-list li::before{content:"✎"; position:absolute; left:0; top:0; color:var(--brass);}
+
+  .modal-facts{
+    display:flex; gap:22px; flex-wrap:wrap;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft);
+    margin-bottom:20px;
+    border-top:1px dashed var(--brass); border-bottom:1px dashed var(--brass);
+    border-left:3px solid var(--blue);
+    padding:10px 0 10px 12px;
+  }
+  .modal-facts strong{color:var(--brass-pale); display:block; font-family:'Lora',serif; font-size:13px;}
+
+  .modal-actions{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .modal-manage{
+    display:flex; gap:16px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color:var(--ink-soft);
+    border-top:1px solid rgba(232,199,122,0.25); padding-top:12px;
+  }
+  .modal-manage button{background:none; border:none; color:var(--ink-soft); cursor:pointer; text-decoration:underline; font-family:inherit; font-size:inherit; padding:0;}
+  .modal-manage button:hover{color:var(--danger-text);}
+
+  /* ---------- FORM MODAL ---------- */
+  .form-grid{display:flex; flex-direction:column; gap:14px;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    letter-spacing:0.8px; text-transform:uppercase; color:var(--brass); margin-bottom:5px;
+  }
+  .field input[type=text], .field input[type=url], .field input[type=number], .field textarea, .field select{
+    width:100%; font-family:'Lora', serif; font-size:13.5px; color:var(--cream);
+    background:var(--cork-mid); border:1.5px solid var(--brass); padding:9px 10px;
+  }
+  .field input::placeholder, .field textarea::placeholder{color:rgba(245,226,192,0.45);}
+  .field textarea{resize:vertical; min-height:64px;}
+  .field-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .field-row > .field{flex:1; min-width:150px;}
+  .diff-select{display:flex; gap:8px;}
+  .diff-opt{
+    flex:1; text-align:center; padding:9px 6px; border:1.5px solid var(--brass); cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; background:var(--cork-mid); color:var(--brass);
+  }
+  .diff-opt.sel{background:var(--blue); color:var(--blue-pale); border-color:var(--blue-light);}
+  .img-input-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .img-input-row input[type=text]{flex:1; min-width:180px;}
+  .img-preview{
+    width:100%; height:120px; border:1.5px dashed var(--brass); margin-top:8px;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+  }
+  .img-preview img{width:100%; height:100%; object-fit:cover;}
+  .form-hint{font-size:11.5px; color:var(--ink-soft); font-style:italic;}
+  .form-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:6px;}
+  .form-error{color:var(--danger-text); font-family:'IBM Plex Mono', monospace; font-size:11.5px; display:none;}
+  .form-error.show{display:block;}
+
+  footer{
+    margin-top:50px; padding-top:18px; border-top:1px solid rgba(232,199,122,0.35);
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--brass-pale);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+
+  @media (max-width:640px){
+    .masthead{flex-direction:column; align-items:stretch;}
+    .masthead-left, .rank-card{transform:none; max-width:none;}
+    .masthead-right{align-items:stretch;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="masthead-left">
+      <span class="eyebrow">Történelmi nyomozóiroda · a tanterem faliújságja</span>
+      <h1>Nyomozói <span>Akták</span></h1>
+      <div class="subtitle">Nyomok, források és tanúvallomások alapján göngyölítsd fel a múlt rejtélyeit — akkor és olyan sorrendben, ahogy neked tetszik.</div>
+    </div>
+    <div class="masthead-right">
+      <button class="btn add-case-btn" id="openAddBtn">📌 Új ügy felvétele</button>
+      <div class="rank-card">
+        <div class="rank-row">
+          <div>
+            <div class="rank-name" id="rankName">Gyakornok</div>
+            <div class="rank-count" id="rankCount">0 / 0 ügy lezárva</div>
+          </div>
+        </div>
+        <div class="rank-bar"><div class="rank-bar-fill" id="rankFill" style="width:0%"></div></div>
+        <div class="seal-row" id="sealRow"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="meander"></div>
+
+  <nav class="filter-bar" id="filterBar"></nav>
+
+  <main class="case-grid" id="caseGrid"></main>
+
+  <footer>
+    <span>© Nyomozói Akták — oktatási célra</span>
+    <span id="footerProgress"></span>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="overlay" id="formOverlay">
+  <div class="modal" id="formModalContent"></div>
+</div>
+
+<script>
+/* ---------------- ALAP ÜGYEK (első betöltéskor kerülnek a tárolóba) ---------------- */
+const STARTER_GAMES = [
+  {
+    id:"honfoglalas",
+    era:"895 körül",
+    eraGroup:"Középkor",
+    title:"A fejedelem pecsétje",
+    teaser:"Egy vitatott hatalomátvétel nyomait kutatod a honfoglalás és államalapítás korából.",
+    description:"Géza fejedelem udvarában ellentmondó krónikás beszámolók kerültek elő. A te dolgod, hogy forrásösszevetéssel kiderítsd, mi történhetett valójában — és mi csak utólagos legendaképzés.",
+    clues:["3 krónikarészlet","1 genealógiai tábla","kortárs térkép"],
+    difficulty:1, duration:"25–35 perc", image:"", link:"#"
+  },
+  {
+    id:"anjou",
+    era:"1330-as évek",
+    eraGroup:"Középkor",
+    title:"Az öt báró vallomása",
+    teaser:"Logikai rács segít kideríteni, ki mondott igazat az Anjou-kori udvari perben.",
+    description:"Öt főúr — köztük Nekcsei Demeter és Druget Vilmos — egymásnak ellentmondó vallomást tett Károly Róbert udvarában. Kizárásos alapon, táblázatos nyomozással kell kiderítened a tényleges eseménysort.",
+    clues:["5 vallomás","birtokjegyzék","utazási napló"],
+    difficulty:2, duration:"30–40 perc", image:"", link:"#"
+  },
+  {
+    id:"pecset",
+    era:"1350 körül",
+    eraGroup:"Középkor",
+    title:"Az elveszett pecsét",
+    teaser:"Egy eltűnt viaszpecsét nyomán derítitek fel egy középkori város titkát.",
+    description:"A városi tanács pecsétje eltűnt egy fontos oklevélről. Térképek, kézműves nyomok és szemtanúk vallomásai vezetnek el a tetteshez — de csak ha helyesen olvasod össze a bizonyítékokat.",
+    clues:["oklevél-töredék","céhlajstrom","térkép a városról"],
+    difficulty:2, duration:"35–45 perc", image:"", link:"#"
+  },
+  {
+    id:"reformkor",
+    era:"1830–1848",
+    eraGroup:"Újkor",
+    title:"A rendi országgyűlés titkai",
+    teaser:"Kövesd a reformkor vitáit, és fejtsd meg, kinek az érdeke húzódott a felszín alatt.",
+    description:"Egy rendi országgyűlési vitában elhangzott javaslat szerzősége bizonytalan. Korabeli röplapok, naplórészletek és beszédtöredékek segítségével azonosítsd, mely reformer állhatott a háttérben.",
+    clues:["röplapok","naplórészlet","szavazási jegyzőkönyv"],
+    difficulty:2, duration:"30 perc", image:"", link:"#"
+  },
+  {
+    id:"trianon",
+    era:"1919–1920",
+    eraGroup:"XX. század",
+    title:"A béketárgyalás dossziéja",
+    teaser:"Kilenc delegáció, egymásnak ellentmondó térképek és érdekek — mi húzódott a döntések mögött?",
+    description:"A párizsi békekonferencia idején egy kulcsfontosságú tárgyalási jegyzőkönyv hiányos maradt. Delegációs anyagok és térképek összevetésével rekonstruáld, mely érvek nyertek — és melyek maradtak figyelmen kívül.",
+    clues:["9 delegációs dosszié","vitatott térképek","tárgyalási napló"],
+    difficulty:3, duration:"45–60 perc", image:"", link:"#"
+  },
+  {
+    id:"vermeer",
+    era:"1945",
+    eraGroup:"XX. század",
+    title:"A Vermeer-hamisítvány",
+    teaser:"Egy náci műkincsgyűjteménybe került festmény eredetiségét kell tisztáznod.",
+    description:"Göring gyűjteményében egy állítólagos Vermeer-festmény bukkant fel. Szakértői jelentések, levelezés és technikai vizsgálatok alapján neked kell eldöntened: eredeti műalkotásról vagy zseniális hamisítványról van szó.",
+    clues:["szakértői jelentés","levelezés","anyagvizsgálati adatok"],
+    difficulty:3, duration:"45 perc", image:"", link:"#"
+  }
+];
+
+/* generikus "jelenet" ikonok korszak-csoport szerint, ha nincs feltöltött borítókép */
+const SCENE_ICONS = {
+  "Középkor":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="32" cy="26" r="14"/><path d="M32 40 L26 54 L32 50 L38 54 Z"/><path d="M22 22 Q32 32 42 22"/></svg>',
+  "Újkor":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 50 H52 M18 50 V22 L32 12 L46 22 V50"/><path d="M26 50 V32 M38 50 V32"/></svg>',
+  "XX. század":'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="12" y="10" width="40" height="32" rx="1"/><circle cx="24" cy="22" r="4"/><path d="M12 36 L24 26 L34 34 L52 18 V42 H12 Z"/></svg>'
+};
+const DEFAULT_SCENE = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="10" y="14" width="44" height="36" rx="2"/><path d="M10 26 H54"/></svg>';
+const PIN_PALETTE = ["#3A6B8C","#E8C77A","#5B9BC7","#B58A6F","#244A5E","#8C3A22"];
+
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) | 0; } return Math.abs(h); }
+function pinColorFor(group){ return PIN_PALETTE[hashStr(group) % PIN_PALETTE.length]; }
+function sceneIconFor(group){ return SCENE_ICONS[group] || DEFAULT_SCENE; }
+
+const RANKS = [
+  {min:0, name:"Gyakornok"},
+  {min:1, name:"Segédnyomozó"},
+  {min:3, name:"Nyomozó"},
+  {min:5, name:"Főnyomozó"},
+  {min:8, name:"Mesterdetektív"}
+];
+
+/* ---------------- TÁROLÁS ---------------- */
+const memoryFallback = {};
+const Store = {
+  available: (() => {
+    try{ const k="__t__"; localStorage.setItem(k,"1"); localStorage.removeItem(k); return true; }
+    catch(e){ return false; }
+  })(),
+  get(key){
+    if(this.available){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+    return memoryFallback[key] ?? null;
+  },
+  set(key, value){
+    if(this.available){ try{ localStorage.setItem(key, JSON.stringify(value)); return true; }catch(e){ /* elfogy a hely, pl. túl nagy kép */ return false; } }
+    memoryFallback[key] = value; return true;
+  }
+};
+
+let games = Store.get("nyomozoi_aktak_games");
+if(!games){ games = STARTER_GAMES.slice(); Store.set("nyomozoi_aktak_games", games); }
+let completed = Store.get("nyomozoi_aktak_completed") || {};
+
+function persistGames(){ Store.set("nyomozoi_aktak_games", games); }
+function persistCompleted(){ Store.set("nyomozoi_aktak_completed", completed); }
+
+/* ---------------- SZŰRŐ + RÁCS ---------------- */
+let activeFilter = "Mind";
+
+function currentGroups(){ return ["Mind", ...Array.from(new Set(games.map(g=>g.eraGroup)))]; }
+
+function renderFilters(){
+  const bar = document.getElementById("filterBar");
+  bar.innerHTML = "";
+  currentGroups().forEach(group=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (group===activeFilter ? " active" : "");
+    b.textContent = group;
+    b.onclick = ()=>{ activeFilter = group; renderFilters(); renderGrid(); };
+    bar.appendChild(b);
+  });
+}
+
+function photoInner(g){
+  if(g.image){
+    return `<img src="${g.image}" alt="">`;
+  }
+  return `<div class="fallback-scene">${sceneIconFor(g.eraGroup)}</div>`;
+}
+
+function renderGrid(){
+  const grid = document.getElementById("caseGrid");
+  grid.innerHTML = "";
+  const list = games.filter(g => activeFilter==="Mind" || g.eraGroup===activeFilter);
+
+  if(list.length===0){
+    grid.innerHTML = `<div class="empty-state">Ebben a korszakcsoportban még nincs felvett ügy.<br>Kattints a "📌 Új ügy felvétele" gombra a hozzáadáshoz.</div>`;
+    return;
+  }
+
+  list.forEach((g, idx) => {
+    const done = !!completed[g.id];
+    const rot = ((hashStr(g.id) % 7) - 3) * 0.9;
+    const card = document.createElement("article");
+    card.className = "case-card";
+    card.style.transform = `rotate(${rot}deg)`;
+    card.tabIndex = 0;
+    card.setAttribute("role","button");
+    card.setAttribute("aria-label", g.title + (done ? " — megoldva" : ""));
+    card.innerHTML = `
+      <div class="pin" style="--pin-color:${pinColorFor(g.eraGroup)}"></div>
+      <button class="icon-btn edit" data-act="edit" aria-label="Szerkesztés">✎</button>
+      <button class="icon-btn del" data-act="del" aria-label="Törlés">🗑</button>
+      <div class="case-photo">
+        ${photoInner(g)}
+        <div class="stamp">Ügyirat №${String(idx+1).padStart(2,'0')}</div>
+        ${done ? '<div class="done-ribbon">LEZÁRVA</div>' : ''}
+      </div>
+      <div class="case-caption">
+        <div class="case-era">${g.era}</div>
+        <div class="case-title">${g.title}</div>
+        <div class="case-teaser">${g.teaser}</div>
+        <div class="case-meta">
+          <span class="difficulty">${[1,2,3].map(i=>`<span class="dot ${i<=g.difficulty?'on':''}"></span>`).join("")}</span>
+          <span>${g.duration}</span>
+        </div>
+      </div>
+    `;
+    card.querySelector('[data-act="edit"]').addEventListener("click", e=>{ e.stopPropagation(); openForm(g); });
+    card.querySelector('[data-act="del"]').addEventListener("click", e=>{ e.stopPropagation(); deleteGame(g.id); });
+    const openFn = ()=>openModal(g);
+    card.addEventListener("click", openFn);
+    card.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openFn(); }});
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- RÉSZLETEK MODAL ---------------- */
+function openModal(g){
+  const done = !!completed[g.id];
+  const overlay = document.getElementById("overlay");
+  const modal = document.getElementById("modalContent");
+  modal.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="closeBtn" aria-label="Bezárás">✕</button>
+      <div class="modal-era">${g.era} · ${g.eraGroup}</div>
+      <div class="modal-title">${g.title}</div>
+    </div>
+    <div class="modal-photo">${photoInner(g)}</div>
+    <div class="modal-body">
+      <div class="modal-desc">${g.description}</div>
+      <ul class="clue-list">${g.clues.map(c=>`<li>${c}</li>`).join("")}</ul>
+      <div class="modal-facts">
+        <div><strong>${g.duration}</strong>időtartam</div>
+        <div><strong>${"●".repeat(g.difficulty)}${"○".repeat(3-g.difficulty)}</strong>nehézség</div>
+        <div><strong>${done ? "Lezárva" : "Nyitott ügy"}</strong>állapot</div>
+      </div>
+      <div class="modal-actions">
+        <a class="btn btn-primary" href="${g.link}" target="_blank" rel="noopener">Nyomozás indítása →</a>
+        <button class="btn btn-secondary ${done?'done':''}" id="markDone">${done ? "✓ Megoldva" : "Megjelölöm megoldottként"}</button>
+      </div>
+      <div class="modal-manage">
+        <button id="editFromModal">Ügy szerkesztése</button>
+        <button id="deleteFromModal">Ügy törlése</button>
+      </div>
+    </div>
+  `;
+  overlay.classList.add("open");
+  document.getElementById("closeBtn").onclick = closeModal;
+  document.getElementById("markDone").onclick = ()=>{
+    completed[g.id] = !completed[g.id];
+    persistCompleted();
+    renderAll();
+    openModal(g);
+  };
+  document.getElementById("editFromModal").onclick = ()=>{ closeModal(); openForm(g); };
+  document.getElementById("deleteFromModal").onclick = ()=>{ closeModal(); deleteGame(g.id); };
+}
+function closeModal(){ document.getElementById("overlay").classList.remove("open"); }
+document.getElementById("overlay").addEventListener("click", e=>{ if(e.target.id==="overlay") closeModal(); });
+
+/* ---------------- ÚJ ÜGY / SZERKESZTÉS ŰRLAP ---------------- */
+function openForm(existing){
+  const isEdit = !!existing;
+  const g = existing || { id:"", era:"", eraGroup:"", title:"", teaser:"", description:"", clues:[], difficulty:2, duration:"", image:"", link:"" };
+  const overlay = document.getElementById("formOverlay");
+  const modal = document.getElementById("formModalContent");
+  const groupOptions = currentGroups().filter(x=>x!=="Mind");
+
+  modal.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="formClose" aria-label="Bezárás">✕</button>
+      <div class="modal-era">${isEdit ? "Ügy szerkesztése" : "Új ügy felvétele"}</div>
+      <div class="modal-title">${isEdit ? g.title : "Nyomozás hozzáadása"}</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Cím *</label>
+          <input type="text" id="f_title" value="${escapeAttr(g.title)}" placeholder="pl. A halászbástya rejtélye">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Korszak (megjelenő szöveg)</label>
+            <input type="text" id="f_era" value="${escapeAttr(g.era)}" placeholder="pl. 1456">
+          </div>
+          <div class="field">
+            <label>Korszakcsoport (szűrőhöz)</label>
+            <input type="text" id="f_eragroup" list="groupList" value="${escapeAttr(g.eraGroup)}" placeholder="pl. Középkor">
+            <datalist id="groupList">${groupOptions.map(o=>`<option value="${escapeAttr(o)}">`).join("")}</datalist>
+          </div>
+        </div>
+        <div class="field">
+          <label>Rövid csábító mondat (a kártyán jelenik meg)</label>
+          <input type="text" id="f_teaser" value="${escapeAttr(g.teaser)}" placeholder="Egy mondat, ami beindítja a kíváncsiságot">
+        </div>
+        <div class="field">
+          <label>Részletes leírás</label>
+          <textarea id="f_desc" placeholder="Mi a helyzet, mit kell kideríteni?">${escapeHtml(g.description)}</textarea>
+        </div>
+        <div class="field">
+          <label>Nyomok / források (soronként egy)</label>
+          <textarea id="f_clues" placeholder="pl.&#10;3 tanúvallomás&#10;egy térkép&#10;levéltári bejegyzés">${g.clues.join("\n")}</textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Időtartam</label>
+            <input type="text" id="f_duration" value="${escapeAttr(g.duration)}" placeholder="pl. 30 perc">
+          </div>
+          <div class="field">
+            <label>Nehézség</label>
+            <div class="diff-select" id="f_diff">
+              ${[1,2,3].map(i=>`<div class="diff-opt ${g.difficulty===i?'sel':''}" data-v="${i}">${"●".repeat(i)}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Játék linkje *</label>
+          <input type="url" id="f_link" value="${escapeAttr(g.link==="#"?"":g.link)}" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Borítókép — jelezze a felderítendő helyzetet</label>
+          <div class="img-input-row">
+            <input type="text" id="f_image_url" value="${g.image && !g.image.startsWith('data:') ? escapeAttr(g.image) : ''}" placeholder="Kép URL-je (link)">
+            <input type="file" id="f_image_file" accept="image/*">
+          </div>
+          <div class="form-hint">Megadhatsz linket egy képre, vagy tölthetsz fel saját fájlt. Ha egyiket sem adod meg, egy alap illusztráció jelenik meg a korszakcsoport alapján.</div>
+          <div class="img-preview" id="imgPreview">${g.image ? `<img src="${g.image}">` : "Nincs borítókép megadva"}</div>
+        </div>
+        <div class="form-error" id="formError"></div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="formCancel">Mégse</button>
+          <button class="btn btn-primary" id="formSave">${isEdit ? "Mentés" : "Ügy hozzáadása"}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  overlay.classList.add("open");
+
+  let pendingImage = g.image || "";
+  let selectedDiff = g.difficulty;
+
+  document.getElementById("formClose").onclick = closeForm;
+  document.getElementById("formCancel").onclick = closeForm;
+
+  modal.querySelectorAll(".diff-opt").forEach(el=>{
+    el.onclick = ()=>{
+      selectedDiff = parseInt(el.dataset.v,10);
+      modal.querySelectorAll(".diff-opt").forEach(x=>x.classList.remove("sel"));
+      el.classList.add("sel");
+    };
+  });
+
+  const updatePreview = (src)=>{
+    const prev = document.getElementById("imgPreview");
+    prev.innerHTML = src ? `<img src="${src}">` : "Nincs borítókép megadva";
+  };
+
+  document.getElementById("f_image_url").addEventListener("input", (e)=>{
+    pendingImage = e.target.value.trim();
+    updatePreview(pendingImage);
+  });
+  document.getElementById("f_image_file").addEventListener("change", (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    if(file.size > 1500000){
+      showFormError("A kép túl nagy (max ~1,5 MB). Válassz kisebb fájlt, vagy add meg kép URL-jét.");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      pendingImage = reader.result;
+      document.getElementById("f_image_url").value = "";
+      updatePreview(pendingImage);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById("formSave").onclick = ()=>{
+    const title = document.getElementById("f_title").value.trim();
+    const link = document.getElementById("f_link").value.trim();
+    if(!title || !link){
+      showFormError("A cím és a játék linkje kötelező mező.");
+      return;
+    }
+    const newGame = {
+      id: isEdit ? g.id : "ug_" + Date.now(),
+      title,
+      era: document.getElementById("f_era").value.trim(),
+      eraGroup: document.getElementById("f_eragroup").value.trim() || "Egyéb",
+      teaser: document.getElementById("f_teaser").value.trim(),
+      description: document.getElementById("f_desc").value.trim(),
+      clues: document.getElementById("f_clues").value.split("\n").map(s=>s.trim()).filter(Boolean),
+      duration: document.getElementById("f_duration").value.trim(),
+      difficulty: selectedDiff,
+      image: pendingImage,
+      link
+    };
+    if(isEdit){
+      games = games.map(x => x.id===g.id ? newGame : x);
+    } else {
+      games.push(newGame);
+    }
+    const ok = persistGames();
+    if(ok === false){
+      showFormError("A borítókép túl nagy a tároláshoz — add meg inkább kép URL-jét.");
+      return;
+    }
+    closeForm();
+    renderFilters();
+    renderAll();
+  };
+}
+function showFormError(msg){
+  const el = document.getElementById("formError");
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function closeForm(){ document.getElementById("formOverlay").classList.remove("open"); }
+document.getElementById("formOverlay").addEventListener("click", e=>{ if(e.target.id==="formOverlay") closeForm(); });
+document.getElementById("openAddBtn").addEventListener("click", ()=>openForm(null));
+
+function deleteGame(id){
+  if(!confirm("Biztosan törlöd ezt az ügyet? Ez nem vonható vissza.")) return;
+  games = games.filter(x=>x.id!==id);
+  delete completed[id];
+  persistGames();
+  persistCompleted();
+  if(!currentGroups().includes(activeFilter)) activeFilter = "Mind";
+  renderFilters();
+  renderAll();
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function escapeAttr(s){ return (s||"").replace(/"/g,"&quot;"); }
+
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ closeModal(); closeForm(); }
+});
+
+/* ---------------- RANG ---------------- */
+function renderRank(){
+  const total = games.length;
+  const doneCount = Object.values(completed).filter(Boolean).length;
+  let rank = RANKS[0].name;
+  RANKS.forEach(r=>{ if(doneCount >= r.min) rank = r.name; });
+  document.getElementById("rankName").textContent = rank;
+  document.getElementById("rankCount").textContent = `${doneCount} / ${total} ügy lezárva`;
+  document.getElementById("rankFill").style.width = total ? `${(doneCount/total)*100}%` : "0%";
+  document.getElementById("footerProgress").textContent = total ? `Haladás: ${Math.round((doneCount/total)*100)}%` : "";
+
+  const sealRow = document.getElementById("sealRow");
+  sealRow.innerHTML = "";
+  games.forEach(g=>{
+    const s = document.createElement("div");
+    s.className = "seal" + (completed[g.id] ? " earned" : "");
+    s.title = g.title;
+    s.textContent = completed[g.id] ? "✓" : "?";
+    sealRow.appendChild(s);
+  });
+}
+
+function renderAll(){ renderGrid(); renderRank(); }
+
+renderFilters();
+renderAll();
+</script>
+</body>
+</html>
