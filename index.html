@@ -159,19 +159,21 @@
 
   .featured-image {
     width: 100%;
-    height: 120px;
+    height: 108px;
     border: 1.5px solid var(--brass);
     box-shadow: 4px 4px 8px var(--shadow);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 6 / 9;
   }
 
   .featured-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 30%;
     filter: sepia(.3) saturate(1.1) contrast(1.05) brightness(.98);
   }
 
